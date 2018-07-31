@@ -1,4 +1,4 @@
-objects=main.o
+objects=main.o mpc.o
 CC=gcc
 CFG=-std=c99 -Wall
 LIB=-lm -lreadline
