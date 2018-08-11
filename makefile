@@ -5,6 +5,7 @@ LIB=-lm -lreadline
 
 nn: main.o mpc.o
 	gcc $(CFG) -o $@ $^    $(LIB)
+	ctags -R *
 main.o:main.c
 	gcc $(CFG) -o $@ -c $^ $(LIB)
 mpc.o:mpc.c

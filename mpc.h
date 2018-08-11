@@ -262,11 +262,11 @@ mpc_parser_t *mpc_re(const char *re);
 */
 
 typedef struct mpc_ast_t {
-  char *tag;
-  char *contents;
-  mpc_state_t state;
-  int children_num;
-  struct mpc_ast_t** children;
+  char *tag;	//节点信息
+  char *contents;    //具体的节点数据  如： （ 5 :
+  mpc_state_t state;   //记录解析器的位置   行号 列号
+  int children_num;    //
+  struct mpc_ast_t** children;  //双向指针
 } mpc_ast_t;
 
 mpc_ast_t *mpc_ast_new(const char *tag, const char *contents);
