@@ -1,4 +1,5 @@
 #include "mpc.h"
+#include "whg.h"
 
 #ifdef _WIN32
 
@@ -32,7 +33,7 @@ typedef struct lval {
   struct lval** cell;
 } lval;
 
-//赋值：
+//赋值：数字
 lval* lval_num(long x) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_NUM;
@@ -40,7 +41,7 @@ lval* lval_num(long x) {
   return v;
 }
 
-//赋值：
+//赋值：错误信息
 lval* lval_err(char* m) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_ERR;
@@ -49,7 +50,7 @@ lval* lval_err(char* m) {
   return v;
 }
 
-//赋值：
+//赋值：符号
 lval* lval_sym(char* s) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_SYM;
@@ -58,7 +59,7 @@ lval* lval_sym(char* s) {
   return v;
 }
 
-//赋值：
+//赋值：表达式
 lval* lval_sexpr(void) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_SEXPR;
@@ -66,7 +67,7 @@ lval* lval_sexpr(void) {
   v->cell = NULL;
   return v;
 }
-
+//释放内存
 void lval_del(lval* v) {
 
   switch (v->type) {
@@ -77,12 +78,12 @@ void lval_del(lval* v) {
     case LVAL_ERR: free(v->err); break;
     case LVAL_SYM: free(v->sym); break;
     
-    /* If Sexpr then delete all elements inside */
+	//删除括号内的数据
     case LVAL_SEXPR:
       for (int i = 0; i < v->count; i++) {
         lval_del(v->cell[i]);
       }
-      /* Also free the memory allocated to contain the pointers */
+	  //释放存放指针的数组
       free(v->cell);
     break;
   }
@@ -91,25 +92,26 @@ void lval_del(lval* v) {
   free(v);
 }
 
+//括号内的数据添加进树
 lval* lval_add(lval* v, lval* x) {
   v->count++;
   v->cell = realloc(v->cell, sizeof(lval*) * v->count);
   v->cell[v->count-1] = x;
   return v;
 }
-
+//取出第i个数据
 lval* lval_pop(lval* v, int i) {
-  /* Find the item at "i" */
+  //返回第i个元素的指针
   lval* x = v->cell[i];
   
-  /* Shift memory after the item at "i" over the top */
+  //将第i个后面的元素前移一位
   memmove(&v->cell[i], &v->cell[i+1],
     sizeof(lval*) * (v->count-i-1));
   
-  /* Decrease the count of items in the list */
+  //计数减一
   v->count--;
   
-  /* Reallocate the memory used */
+  //重新放置数据
   v->cell = realloc(v->cell, sizeof(lval*) * v->count);
   return x;
 }
@@ -159,7 +161,7 @@ lval* builtin_op(lval* a, char* op) {
     }
   }
   
-  /* Pop the first element */
+  //取出第一个数据
   lval* x = lval_pop(a, 0);
   
   /* If no arguments and sub then perform unary negation */
@@ -167,13 +169,13 @@ lval* builtin_op(lval* a, char* op) {
     x->num = -x->num;
   }
   
-  /* While there are still elements remaining */
+  //当有括号的时候
   while (a->count > 0) {
   
-    /* Pop the next element */
+	  //取出第一个数据
     lval* y = lval_pop(a, 0);
     
-    /* Perform operation */
+	//进行运算
     if (strcmp(op, "+") == 0) { x->num += y->num; }
     if (strcmp(op, "-") == 0) { x->num -= y->num; }
     if (strcmp(op, "*") == 0) { x->num *= y->num; }
@@ -186,11 +188,11 @@ lval* builtin_op(lval* a, char* op) {
       x->num /= y->num;
     }
     
-    /* Delete element now finished with */
+	//运算完成后删除自己
     lval_del(y);
   }
   
-  /* Delete input expression and return result */
+  //删除输入的表达式，并输出结果
   lval_del(a);
   return x;
 }
@@ -268,11 +270,11 @@ lval* lval_read(mpc_ast_t* t) {
 
 int main(int argc, char** argv) {
   
-  mpc_parser_t* Number = mpc_new("number");
-  mpc_parser_t* Symbol = mpc_new("symbol");
-  mpc_parser_t* Sexpr  = mpc_new("sexpr");
-  mpc_parser_t* Expr   = mpc_new("expr");
-  mpc_parser_t* Lispy  = mpc_new("lispy");
+  mpc_parser_t* Number = mpc_new("number"); //数字
+  mpc_parser_t* Symbol = mpc_new("symbol"); //操作字符
+  mpc_parser_t* Sexpr  = mpc_new("sexpr");  //括号
+  mpc_parser_t* Expr   = mpc_new("expr");   //表达式
+  mpc_parser_t* Smile  = mpc_new("smile");  //语言
   
   mpca_lang(MPCA_LANG_DEFAULT,
     "                                          \
@@ -280,21 +282,22 @@ int main(int argc, char** argv) {
       symbol : '+' | '-' | '*' | '/' ;         \
       sexpr  : '(' <expr>* ')' ;               \
       expr   : <number> | <symbol> | <sexpr> ; \
-      lispy  : /^/ <expr>* /$/ ;               \
+      smile  : /^/ <expr>* /$/ ;               \
     ",
-    Number, Symbol, Sexpr, Expr, Lispy);
+    Number, Symbol, Sexpr, Expr, Smile);
   
-  puts("Lispy Version 0.5");
+  puts("Smile Version 0.5");
   puts("Press Ctrl+c to Exit\n");
   
   while (1) {
   
-    char* input = readline("lispy> ");
+    char* input = readline("smile> ");
     add_history(input);
     
     mpc_result_t r;
-    if (mpc_parse("<stdin>", input, Lispy, &r)) {
+    if (mpc_parse("<stdin>", input, Smile, &r)) {
       lval* x = lval_eval(lval_read(r.output));
+	  str_print(r.output);
       lval_println(x);
       lval_del(x);
       mpc_ast_delete(r.output);
@@ -307,7 +310,7 @@ int main(int argc, char** argv) {
     
   }
   
-  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Lispy);
+  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Smile);
   
   return 0;
 }
