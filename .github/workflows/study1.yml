@@ -42,8 +42,8 @@ jobs:
       # 上传当前代码
       - name: Upload code
         run: |
-          git config --global user.name "WHG555"
-          git config --global user.email "whghcyx@outlook.com"
+          # git config --global user.name "WHG555"
+          # git config --global user.email "whghcyx@outlook.com"
           git add .
           git commit -m "feat: Update code"
           git push https://${{secrets.TODAY_GITHUB_KEY}}@github.com/${{ github.repository }}.git HEAD:master
