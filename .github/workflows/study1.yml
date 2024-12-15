@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Start Program"
           echo "github ${{github}}"
-          echo "GITHUB_REPOSITORY_OWNER_ID ${{github.repository.owner}}"
+          echo "GITHUB_REPOSITORY_OWNER_ID ${{github.owner}}"
 
       # 上传当前代码
       - name: Upload code
