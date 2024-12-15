@@ -31,14 +31,21 @@ jobs:
       - name: List file
         run: |
           ls -alh
-    
-      - name: Build
-        run: echo "Building the project..."
-    
-      - name: Test
-        run: echo "Running tests..."
-    
-      - name: Publish
-        run: echo "Publishing the artifact..."
 
+      # 运行主要程序
+      - name: Run Program
+        run: |
+          echo "Start Program"
+          echo "github ${{github}}"
 
+      # 上传当前代码
+      - name: Upload code
+        run: |
+          git config --global user.name "WHG555"
+          git config --global user.email "whghcyx@outlook.com"
+          git add .
+          git commit -m "feat: Update code"
+          git push https://${{secrets.TODAY_GITHUB_KEY}}@github.com/${{ github.repository }}.git HEAD:main
+        env:
+          GH_TOKEN: ${{ secrets.TODAY_GITHUB_KEY }}
+    
