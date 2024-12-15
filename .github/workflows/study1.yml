@@ -1,0 +1,36 @@
+# Action 的名字
+name: Github Action学习
+
+# 触发条件
+on:
+  # 收到 push 后执行任务
+  push:
+    branches:
+      - main
+      - master
+  # 手动点击运行
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 克隆当前代码
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # 查看当前目录中的文件与文件夹
+      - name: List file
+        run: |
+          ls -alh
+    
+      - name: Build
+        run: echo "Building the project..."
+    
+      - name: Test
+        run: echo "Running tests..."
+    
+      - name: Publish
+        run: echo "Publishing the artifact..."
+
+
