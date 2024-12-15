@@ -36,8 +36,8 @@ jobs:
       - name: Run Program
         run: |
           echo "Start Program"
-          echo "github ${{github}}"
           echo "GITHUB_REPOSITORY_OWNER_ID ${{github.repository_owner}}"
+          echo "aaa" >> Readme
 
       # 上传当前代码
       - name: Upload code
@@ -46,7 +46,7 @@ jobs:
           git config --global user.email "whghcyx@outlook.com"
           git add .
           git commit -m "feat: Update code"
-          git push https://${{secrets.TODAY_GITHUB_KEY}}@github.com/${{ github.repository }}.git HEAD:main
+          git push https://${{secrets.TODAY_GITHUB_KEY}}@github.com/${{ github.repository }}.git HEAD:master
         env:
           GH_TOKEN: ${{ secrets.TODAY_GITHUB_KEY }}
     
