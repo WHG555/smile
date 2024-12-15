@@ -11,10 +11,18 @@ on:
   # 手动点击运行
   workflow_dispatch:
 
+# 环境变量
+env:
+  VERSION: 1.0
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # 显示环境变量
+      - name: Show Version
+        run: echo "Code version is ${{ env.VERSION }}"
+
       # 克隆当前代码
       - name: Checkout
         uses: actions/checkout@v2
